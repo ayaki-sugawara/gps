@@ -42,7 +42,7 @@ class CameraHome extends StatefulWidget {
 class CameraHomeState extends State<CameraHome> {
   static const platform = const MethodChannel('samples.flutter.dev/battery');
   late StreamSubscription _intentDataStreamSubscription;
-
+  bool capture = false;
   late CameraController _cameraController;// デバイスのカメラを制御するコントローラ
   late Future<void> _initializeCameraController;// コントローラーに設定されたカメラを初期化する関数
 
@@ -64,6 +64,7 @@ class CameraHomeState extends State<CameraHome> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(''),
@@ -81,7 +82,8 @@ class CameraHomeState extends State<CameraHome> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.videocam),
+        child: !this.capture ? Icon(Icons.videocam) : Icon(Icons.fiber_manual_record, color: Colors.red),
+        // Icon(Icons.videocam, color: this.capture ? Colors.red : Colors.blue),
         // ボタンが押下された際動画撮影
         //////////////////下記で解説/////////////////////////
         onPressed: () async {
@@ -94,13 +96,18 @@ class CameraHomeState extends State<CameraHome> {
             //すでにカメラの録画が始まっている際には録画をストップしてjavaをcall
             if (_cameraController.value.isRecordingVideo) {
               print("動画撮影終了");
+              setState(() {
+                this.capture = false;
+              });
+
               final Directory appDirectory = await getApplicationDocumentsDirectory();
               final String videoDirectory = '${appDirectory.path}/video';//内部ストレージ用のフォルダpath
               await Directory(videoDirectory).create(recursive: true);//内部ストレージ用のフォルダ作成
               final String filePath = '$videoDirectory/test.mp4';//内部ストレージに保存する用のpath
               print(filePath);//ここで表示されるpathに動画が入っている
-              var path = await _cameraController.stopVideoRecording();//カメラを止める＆保存
-              path.saveTo(filePath);
+              final video = await _cameraController.stopVideoRecording();//カメラを止める＆保存
+              await video.saveTo(filePath);
+              Directory(video.path).deleteSync(recursive: true);
               return;
             }
             // final Directory appDirectory = await getApplicationDocumentsDirectory();
@@ -111,6 +118,9 @@ class CameraHomeState extends State<CameraHome> {
             try {
               await _cameraController.startVideoRecording();
               print("動画撮影開始");
+              setState(() {
+                this.capture = true;
+              });
             } on CameraException catch (e) {
               print("動画撮影ができません");
             }
