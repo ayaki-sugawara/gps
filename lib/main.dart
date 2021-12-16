@@ -94,11 +94,12 @@ class CameraHomeState extends State<CameraHome> {
             //すでにカメラの録画が始まっている際には録画をストップしてjavaをcall
             if (_cameraController.value.isRecordingVideo) {
               print("動画撮影終了");
-              _cameraController.stopVideoRecording();//カメラを止める＆保存
+              final path = await _cameraController.stopVideoRecording();//カメラを止める＆保存
+              print(path.path);
               return;
             }
             final Directory appDirectory = await getApplicationDocumentsDirectory();
-            final String videoDirectory = '${appDirectory.path}/Videos';//内部ストレージ用のフォルダpath
+            final String videoDirectory = '${appDirectory.path}/video';//内部ストレージ用のフォルダpath
             await Directory(videoDirectory).create(recursive: true);//内部ストレージ用のフォルダ作成
             final String filePath = '$videoDirectory/test.mp4';//内部ストレージに保存する用のpath
             print(filePath);//ここで表示されるpathに動画が入っている
