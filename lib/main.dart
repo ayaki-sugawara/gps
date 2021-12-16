@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();// runAppが実行される前に、cameraプラグインを初期化
   final cameras = await availableCameras();// デバイスで使用可能なカメラの一覧を取得する
+  print(cameras);
   final firstCamera = cameras.first;// 利用可能なカメラの一覧から、指定のカメラを取得する
   runApp(MyApp(camera: firstCamera));//メイン関数
 }
