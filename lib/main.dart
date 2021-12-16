@@ -4,12 +4,14 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import './location.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();// runAppが実行される前に、cameraプラグインを初期化
   final cameras = await availableCameras();// デバイスで使用可能なカメラの一覧を取得する
   print(cameras);
   final firstCamera = cameras.first;// 利用可能なカメラの一覧から、指定のカメラを取得する
+  determinePosition();
   runApp(MyApp(camera: firstCamera));//メイン関数
 }
 
@@ -58,7 +60,7 @@ class CameraHomeState extends State<CameraHome> {
         // veryHigh : 1080p (1920x1080)
         // ultraHigh : 2160p (3840x2160)
         // max : 利用可能な最大の解像度
-        ResolutionPreset.max);
+        ResolutionPreset.veryHigh);
     _initializeCameraController = _cameraController.initialize();// コントローラーに設定されたカメラを初期化
   }
 
@@ -96,6 +98,7 @@ class CameraHomeState extends State<CameraHome> {
             //すでにカメラの録画が始まっている際には録画をストップしてjavaをcall
             if (_cameraController.value.isRecordingVideo) {
               print("動画撮影終了");
+              positionStream.cancel();
               setState(() {
                 this.capture = false;
               });
@@ -116,6 +119,7 @@ class CameraHomeState extends State<CameraHome> {
             // final String filePath = '$videoDirectory/test.mp4';//内部ストレージに保存する用のpath
             // print(filePath);//ここで表示されるpathに動画が入っている
             try {
+              positionStream.resume();
               await _cameraController.startVideoRecording();
               print("動画撮影開始");
               setState(() {
