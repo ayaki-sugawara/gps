@@ -47,6 +47,7 @@ class CameraHomeState extends State<CameraHome> {
   late StreamSubscription _intentDataStreamSubscription;
   bool capture = false;
   final DateFormat outputFormat = DateFormat('yyyy-MM-ddTHH:MM:SS+09:00');
+  var file_name;
   var gps_data = [];
   late CameraController _cameraController;// デバイスのカメラを制御するコントローラ
   late Future<void> _initializeCameraController;// コントローラーに設定されたカメラを初期化する関数
@@ -111,8 +112,8 @@ class CameraHomeState extends State<CameraHome> {
               final Directory appDirectory = await getApplicationDocumentsDirectory();
               final String videoDirectory = '${appDirectory.path}/video';//内部ストレージ用のフォルダpath
               await Directory(videoDirectory).create(recursive: true);//内部ストレージ用のフォルダ作成
-              final String filePath = '$videoDirectory/test.mp4';//内部ストレージに保存する用のpath
-              File csv = File('$videoDirectory/test.csv');
+              final String filePath = '$videoDirectory/$file_name.mp4';//内部ストレージに保存する用のpath
+              File csv = File('$videoDirectory/$file_name.csv');
               print(filePath);//ここで表示されるpathに動画が入っている
               final video = await _cameraController.stopVideoRecording();//カメラを止める＆保存
               await video.saveTo(filePath);
@@ -140,6 +141,7 @@ class CameraHomeState extends State<CameraHome> {
               });
               await _cameraController.startVideoRecording();
               print("動画撮影開始");
+              file_name = outputFormat.format(DateTime.now());
               setState(() {
                 this.capture = true;
               });

@@ -45,7 +45,7 @@ Future<void> determinePosition() async {
 
 final LocationSettings locationSettings = LocationSettings(
   accuracy: LocationAccuracy.high,
-  distanceFilter: 2,
+  distanceFilter: 1,
 );
 StreamSubscription<Position> positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
     (Position position) {
