@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import './location.dart';
+import 'package:intl/intl.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();// runAppが実行される前に、cameraプラグインを初期化
@@ -45,6 +46,8 @@ class CameraHomeState extends State<CameraHome> {
   static const platform = const MethodChannel('samples.flutter.dev/battery');
   late StreamSubscription _intentDataStreamSubscription;
   bool capture = false;
+  final DateFormat outputFormat = DateFormat('yyyy-MM-ddTHH:MM:SS+09:00');
+  var gps_data = [];
   late CameraController _cameraController;// デバイスのカメラを制御するコントローラ
   late Future<void> _initializeCameraController;// コントローラーに設定されたカメラを初期化する関数
 
@@ -102,15 +105,19 @@ class CameraHomeState extends State<CameraHome> {
               setState(() {
                 this.capture = false;
               });
+              print(gps_data);
+              print(gps_data.join('\n'));
 
               final Directory appDirectory = await getApplicationDocumentsDirectory();
               final String videoDirectory = '${appDirectory.path}/video';//内部ストレージ用のフォルダpath
               await Directory(videoDirectory).create(recursive: true);//内部ストレージ用のフォルダ作成
               final String filePath = '$videoDirectory/test.mp4';//内部ストレージに保存する用のpath
+              File csv = File('$videoDirectory/test.csv');
               print(filePath);//ここで表示されるpathに動画が入っている
               final video = await _cameraController.stopVideoRecording();//カメラを止める＆保存
               await video.saveTo(filePath);
               Directory(video.path).deleteSync(recursive: true);
+              csv.writeAsString('aa');
               return;
             }
             // final Directory appDirectory = await getApplicationDocumentsDirectory();
@@ -120,6 +127,17 @@ class CameraHomeState extends State<CameraHome> {
             // print(filePath);//ここで表示されるpathに動画が入っている
             try {
               positionStream.resume();
+              positionStream.onData((position) {
+                  print(position == null ? 'Unknown' : position.latitude.toString() + ', ' + position.longitude.toString());
+                  if (position != null) {
+                    var location = [position.latitude.toString(), position.longitude.toString()];
+                    var now = DateTime.now();
+                    var now_string = outputFormat.format(now);
+                    print(outputFormat.format(now));
+                    var add_data = [now_string, location[0], location[1]].join(', ');
+                    gps_data.add(add_data);
+                  }
+              });
               await _cameraController.startVideoRecording();
               print("動画撮影開始");
               setState(() {
