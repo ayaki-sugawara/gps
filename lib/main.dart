@@ -117,7 +117,7 @@ class CameraHomeState extends State<CameraHome> {
               final video = await _cameraController.stopVideoRecording();//カメラを止める＆保存
               await video.saveTo(filePath);
               Directory(video.path).deleteSync(recursive: true);
-              csv.writeAsString('aa');
+              csv.writeAsString(gps_data.join('\n'));
               return;
             }
             // final Directory appDirectory = await getApplicationDocumentsDirectory();
