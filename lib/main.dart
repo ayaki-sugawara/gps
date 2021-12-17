@@ -46,8 +46,8 @@ class CameraHomeState extends State<CameraHome> {
   static const platform = const MethodChannel('samples.flutter.dev/battery');
   late StreamSubscription _intentDataStreamSubscription;
   bool capture = false;
-  final DateFormat outputFormat = DateFormat('yyyy-MM-ddTHH:MM:SS+09:00');
-  var file_name;
+  final DateFormat outputFormat = DateFormat('yyyy-MM-ddTHH:mm:SS+09:00');
+  String file_name = 'untitled';
   var gps_data = [];
   late CameraController _cameraController;// デバイスのカメラを制御するコントローラ
   late Future<void> _initializeCameraController;// コントローラーに設定されたカメラを初期化する関数
@@ -108,7 +108,7 @@ class CameraHomeState extends State<CameraHome> {
               });
               print(gps_data);
               print(gps_data.join('\n'));
-
+              print(file_name);
               final Directory appDirectory = await getApplicationDocumentsDirectory();
               final String videoDirectory = '${appDirectory.path}/video';//内部ストレージ用のフォルダpath
               await Directory(videoDirectory).create(recursive: true);//内部ストレージ用のフォルダ作成
