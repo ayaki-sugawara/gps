@@ -45,10 +45,10 @@ Future<void> determinePosition() async {
 
 final LocationSettings locationSettings = LocationSettings(
   accuracy: LocationAccuracy.high,
-  distanceFilter: 1,
+  distanceFilter: 2,
 );
 StreamSubscription<Position> positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
     (Position position) {
-      print("aaaa");
-      print(position == null ? 'Unknown' : position.latitude.toString() + ', ' + position.longitude.toString());
+      // print("aaaa");
+      // print(position == null ? 'Unknown' : position.latitude.toString() + ', ' + position.longitude.toString());
 });
