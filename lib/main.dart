@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import './location.dart';
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();// runAppが実行される前に、cameraプラグインを初期化
@@ -15,6 +16,8 @@ Future<void> main() async {
   determinePosition();
   runApp(MyApp(camera: firstCamera));//メイン関数
 }
+
+
 
 class MyApp extends StatelessWidget {
   final CameraDescription camera;
@@ -109,8 +112,19 @@ class CameraHomeState extends State<CameraHome> {
               print(gps_data);
               print(gps_data.join('\n'));
               print(file_name);
-              final Directory appDirectory = await getApplicationDocumentsDirectory();
-              final String videoDirectory = '${appDirectory.path}/video';//内部ストレージ用のフォルダpath
+
+              Directory? appDirectory;
+
+              if(Platform.isAndroid){
+                appDirectory = await getExternalStorageDirectory();
+                // String savePath = appDirectory!.path;
+
+              } else {
+                appDirectory = await getApplicationDocumentsDirectory();
+
+              }
+
+              final String videoDirectory = '${appDirectory!.path}/video';//内部ストレージ用のフォルダpath
               await Directory(videoDirectory).create(recursive: true);//内部ストレージ用のフォルダ作成
               final String filePath = '$videoDirectory/$file_name.mp4';//内部ストレージに保存する用のpath
               File csv = File('$videoDirectory/$file_name.csv');
@@ -119,6 +133,7 @@ class CameraHomeState extends State<CameraHome> {
               await video.saveTo(filePath);
               Directory(video.path).deleteSync(recursive: true);
               csv.writeAsString(gps_data.join('\n'));
+
               return;
             }
             // final Directory appDirectory = await getApplicationDocumentsDirectory();
